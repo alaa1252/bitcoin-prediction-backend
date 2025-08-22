@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bitcoin Forecast Pro</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">
+          <span class="coin-icon">₿</span>
+        </div>
+        <div class="brand-title">
+          <span>Bitcoin Forecast</span><span class="brand-pro">Pro</span>
+        </div>
+      </div>
+      <div class="asof">
+        <div class="asof-label">As of</div>
+        <div class="asof-time" id="asOfTime">--/--/----, --:--:--</div>
+      </div>
+      <div class="actions">
+        <button id="mockBtn" class="btn btn-ghost">Mock Mode</button>
+        <button id="refreshBtn" class="btn btn-ghost">Refresh</button>
+      </div>
+    </header>
+
+    <!-- Filters -->
+    <section class="filters">
+      <div class="currency-group" role="tablist" aria-label="Currencies">
+        <button class="chip active" data-currency="USD">$ USD</button>
+        <button class="chip" data-currency="ILS">₪ ILS</button>
+        <button class="chip" data-currency="JOD">JD JOD</button>
+      </div>
+      <div class="auto-refresh">
+        <label class="switch">
+          <input type="checkbox" id="autoRefreshToggle" checked />
+          <span class="slider"></span>
+        </label>
+        <span class="auto-label">Auto refresh</span>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="cards">
+      <!-- USD -->
+      <article class="card" data-card="USD">
+        <header class="card-head">
+          <div class="unit">
+            <div class="unit-label">US DOLLAR</div>
+            <div class="unit-pair">BTC → USD</div>
+          </div>
+          <button class="btn btn-icon"><span class="coin-small">$</span></button>
+        </header>
+        <div class="price-now">
+          <span class="price" id="usdNow">--</span>
+          <span class="now-tag">now</span>
+        </div>
+        <div class="price-pred">
+          <span class="price" id="usdPred">--</span>
+          <span class="pred-tag">predicted</span>
+        </div>
+        <div class="delta" id="usdDelta">--</div>
+        <footer class="card-foot">
+            <!-- <button class="btn btn-muted">Focus</button>-->
+            <!--<button class="btn btn-muted" data-update="USD">Update</button>-->
+      </footer>
+    </article>
+
+    <!-- ILS -->
+            <article class="card" data-card="ILS">
+                <header class="card-head">
+                    <div class="unit">
+                        <div class="unit-label">SHEKEL</div>
+                        <div class="unit-pair">BTC → ILS</div>
+                    </div>
+                    <button class="btn btn-icon"><span class="coin-small">₪</span></button>
+                </header>
+                <div class="price-now">
+                    <span class="price" id="ilsNow">--</span>
+                    <span class="now-tag">now</span>
+                </div>
+                <div class="price-pred">
+                    <span class="price" id="ilsPred">--</span>
+                    <span class="pred-tag">predicted</span>
+                </div>
+                <div class="delta" id="ilsDelta">--</div>
+                <footer class="card-foot">
+                    <!--  <button class="btn btn-muted">Focus</button>-->
+                    <!--  <button class="btn btn-muted" data-update="ILS">Update</button>-->
+        </footer>
+    </article>
+
+    <!-- JOD -->
+                    <article class="card" data-card="JOD">
+                        <header class="card-head">
+                            <div class="unit">
+                                <div class="unit-label">JORDANIAN DINAR</div>
+                                <div class="unit-pair">BTC → JOD</div>
+                            </div>
+                            <button class="btn btn-icon"><span class="coin-small">د.أ</span></button>
+                        </header>
+                        <div class="price-now">
+                            <span class="price" id="jodNow">--</span>
+                            <span class="now-tag">now</span>
+                        </div>
+                        <div class="price-pred">
+                            <span class="price" id="jodPred">--</span>
+                            <span class="pred-tag">predicted</span>
+                        </div>
+                        <div class="delta" id="jodDelta">--</div>
+                        <footer class="card-foot">
+                            <!--  <button class="btn btn-muted">Focus</button>-->
+                            <!--  <button class="btn btn-muted" data-update="JOD">Update</button>-->
+                            </footer>
+                        </article>
+    </section>
+
+        <!-- Chart -->
+                            <section class="panel">
+                                <div class="panel-head">
+                                    <div class="panel-title">
+                                        <span id="chartTitle">BTC vs US Dollar — Actual vs Predicted</span>
+                                        <div class="panel-sub">Interactive — hover to inspect values</div>
+                                    </div>
+                                    <div class="panel-meta">Series unit: <span id="seriesUnit">$</span></div>
+                                </div>
+                                <div class="chart-wrap">
+                                    <canvas id="btcChart" height="140"></canvas>
+                                    <div class="legend">
+                                        <span class="legend-dot solid"></span> Actual
+                                        <span class="legend-dot dashed"></span> Predicted
+                                    </div>
+                                </div>
+                            </section>
+
+                            <footer class="footer">
+                                <span>© Bitcoin Forecast Pro • Front-End Demo</span>
+                            </footer>
+</div>
+  <script src="script.js"></script>
+</body>
+</html>
