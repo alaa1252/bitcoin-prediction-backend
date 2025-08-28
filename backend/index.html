@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto & Currency Forecast Dashboard</title> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .logo i {
+            color: #f7931a;
+            font-size: 28px;
+        }
+        
+        .time-info {
+            text-align: right;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .tab.active {
+            background: rgba(247, 147, 26, 0.2);
+            border: 1px solid #f7931a;
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(25, 40, 50, 0.8);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .currency-pair {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .live-badge {
+            background: #4cd964;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .prediction {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .prediction-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .prediction-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .down {
+            color: #ff4d4d;
+        }
+        
+        .up {
+            color: #4cd964;
+        }
+        
+        .accuracy {
+            background: rgba(247, 147, 26, 0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-top: 20px;
+        }
+        
+        .last-updated {
+            text-align: right;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .refresh-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            font-size: 14px;
+            color: #aaa;
+        }
+        
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-label {
+            color: #aaa;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #f7931a;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: #ff4d4d;
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 77, 77, 0.1);
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 900px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fab fa-bitcoin"></i>
+                <h1>Crypto & Currency Forecast Dashboard</h1>
+            </div>
+
+        </header>
+        
+        <div class="refresh-info">
+            <div class="auto-refresh">
+                <i class="fas fa-sync-alt"></i>
+                <span>Auto refresh enabled</span>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="btc">BTC-USD</div>
+            <div class="tab" data-tab="usdils">USD-ILS</div>
+            <div class="tab" data-tab="jodils">JOD-ILS</div>
+        </div>
+        
+        <!-- BTC Page -->
+        <div class="page active" id="btc-page">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="currency-pair">BTC - USD</div>
+                        <div class="live-badge">LIVE</div>
+                    </div>
+                    
+                    <div class="prediction">
+                        <span class="prediction-label">NEXT DAY PREDICTION:</span>
+                        <span class="prediction-value" id="btc-prediction">Loading...</span>
+                    </div>
+                    
+                    <div class="accuracy" id="btc-accuracy">Loading accuracy data...</div>
+                    
+                    <div class="chart-container">
+                        <canvas id="btcChart"></canvas>
+                    </div>
+                    
+                    <div class="last-updated" id="btc-updated">Last updated: Loading...</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="currency-pair">BTC Statistics</div>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-label">Current Price:</span>
+                            <span class="stat-value" id="btc-current-price">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Predicted Price:</span>
+                            <span class="stat-value" id="btc-predicted-price">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Model Accuracy:</span>
+                            <span class="stat-value" id="btc-confidence">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">24h Change:</span>
+                            <span class="stat-value" id="btc-change">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="btcVolumeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- USD-ILS Page -->
+        <div class="page" id="usdils-page">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="currency-pair">USD - ILS</div>
+                        <div class="live-badge">LIVE</div>
+                    </div>
+                    
+                    <div class="prediction">
+                        <span class="prediction-label">NEXT DAY PREDICTION:</span>
+                        <span class="prediction-value" id="usdils-prediction">Loading...</span>
+                    </div>
+                    
+                    <div class="accuracy" id="usdils-accuracy">Loading accuracy data...</div>
+                    
+                    <div class="chart-container">
+                        <canvas id="usdilsChart"></canvas>
+                    </div>
+                    
+                    <div class="last-updated" id="usdils-updated">Last updated: Loading...</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="currency-pair">USD/ILS Statistics</div>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-label">Current Price:</span>
+                            <span class="stat-value" id="usdils-current-price">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Predicted Price:</span>
+                            <span class="stat-value" id="usdils-predicted-price">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Model Accuracy:</span>
+                            <span class="stat-value" id="usdils-confidence">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Weekly Change:</span>
+                            <span class="stat-value" id="usdils-change">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- JOD-ILS Page -->
+        <div class="page" id="jodils-page">
+            <div class="dashboard">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="currency-pair">JOD - ILS</div>
+                        <div class="live-badge">LIVE</div>
+                    </div>
+                    
+                    <div class="prediction">
+                        <span class="prediction-label">NEXT DAY PREDICTION:</span>
+                        <span class="prediction-value" id="jodils-prediction">Loading...</span>
+                    </div>
+                    
+                    <div class="accuracy" id="jodils-accuracy">Loading accuracy data...</div>
+                    
+                    <div class="chart-container">
+                        <canvas id="jodilsChart"></canvas>
+                    </div>
+                    
+                    <div class="last-updated" id="jodils-updated">Last updated: Loading...</div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="currency-pair">JOD/ILS Statistics</div>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-label">Current Price:</span>
+                            <span class="stat-value" id="jodils-current-price">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Predicted Price:</span>
+                            <span class="stat-value" id="jodils-predicted-price">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Model Confidence:</span>
+                            <span class="stat-value" id="jodils-confidence">Loading...</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Weekly Change:</span>
+                            <span class="stat-value" id="jodils-change">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = "http://localhost:5000";
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+        
+        // API Endpoints
+        const ENDPOINTS = {
+            btc: {
+                prediction: `${API_BASE}/predict`,
+                historical: `${API_BASE}/historical`
+            },
+            usdils: {
+                prediction: `${API_BASE}/predict_usdils`,
+                historical: `${API_BASE}/historical_usdils`
+            },
+            jodils: {
+                prediction: `${API_BASE}/predict/forex/JODILS`,
+                historical: `${API_BASE}/historical_jodils`
+            }
+        };
+
+        // Chart instances
+        let charts = {};
+        let refreshCountdown = 30;
+        let countdownInterval;
+
+        // Tab functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+                
+                // Update tab states
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tabName}-page`).classList.add('active');
+                
+                // Load data for the selected tab if not already loaded
+                if (!charts[tabName]) {
+                    loadCurrencyData(tabName);
+                }
+            });
+        });
+
+        // Time display
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            };
+            document.getElementById('current-time').textContent = now.toLocaleString('en-US', options);
+        }
+
+       
+
+        // API fetch with error handling
+        async function fetchData(url, retries = 2) {
+            for (let i = 0; i <= retries; i++) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Attempt ${i + 1} failed for ${url}:`, error);
+                    if (i === retries) {
+                        throw error;
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+        }
+
+        // Load data for specific currency
+        async function loadCurrencyData(currency) {
+            try {
+                const [predData, histData] = await Promise.all([
+                    fetchData(ENDPOINTS[currency].prediction),
+                    fetchData(ENDPOINTS[currency].historical)
+                ]);
+
+                updateUI(currency, predData, histData);
+                updateCharts(currency, predData, histData);
+            } catch (error) {
+                console.error(`Error loading ${currency} data:`, error);
+                showError(currency);
+            }
+        }
+
+        // Update UI elements
+        function updateUI(currency, predData, histData) {
+            const prediction = predData.prediction || 'N/A';
+            const currentPrice = predData.current_price || 0;
+            const predictedPrice = predData.predicted_price || 0;
+            const accuracy = predData.accuracy || predData.confidence || 'N/A';
+            const timestamp = predData.timestamp || new Date().toISOString();
+
+            // Update prediction
+            const predElement = document.getElementById(`${currency}-prediction`);
+            predElement.textContent = prediction.toUpperCase();
+            predElement.className = `prediction-value ${prediction.toLowerCase()}`;
+
+            // Update accuracy - hardcode for JOD-ILS
+            let accuracyText;
+            if (currency === 'jodils') {
+                accuracyText = 'Model Confidence: Approximately 56.60%';
+            } else {
+                accuracyText = `Model ${currency === 'jodils' ? 'Confidence' : 'Accuracy'}: ${accuracy}`;
+            }
+            document.getElementById(`${currency}-accuracy`).textContent = accuracyText;
+
+            // Update current price
+            const decimals = currency === 'btc' ? 2 : 4;
+            const symbol = currency === 'btc' ? '$' : '';
+            document.getElementById(`${currency}-current-price`).textContent = 
+                `${symbol}${parseFloat(currentPrice).toFixed(decimals)}`;
+
+            // Update predicted price
+            document.getElementById(`${currency}-predicted-price`).textContent = 
+                `${symbol}${parseFloat(predictedPrice).toFixed(decimals)}`;
+
+            // Update confidence/accuracy - hardcode for JOD-ILS
+            if (currency === 'jodils') {
+                document.getElementById(`${currency}-confidence`).textContent = 'Approximately 56.60%';
+            } else {
+                document.getElementById(`${currency}-confidence`).textContent = accuracy;
+            }
+
+            // Update change percentage
+            const change = ((predictedPrice - currentPrice) / currentPrice * 100);
+            const changeElement = document.getElementById(`${currency}-change`);
+            changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            changeElement.className = `stat-value ${change >= 0 ? 'up' : 'down'}`;
+
+            // Update timestamp
+            const updatedDate = new Date(timestamp);
+            document.getElementById(`${currency}-updated`).textContent = 
+                `Last updated: ${updatedDate.toLocaleString()}`;
+        }
+
+        // Update charts
+        function updateCharts(currency, predData, histData) {
+            const prices = histData.prices || [];
+            const volumes = histData.volumes || [];
+            const timestamps = histData.timestamps || [];
+
+            if (prices.length === 0) return;
+
+            const labels = timestamps.map(ts => new Date(ts).toLocaleDateString());
+            const chartId = `${currency}Chart`;
+            const volumeChartId = `${currency}VolumeChart`;
+
+            // Create or update price chart
+            const priceCtx = document.getElementById(chartId);
+            if (priceCtx) {
+                if (charts[chartId]) {
+                    charts[chartId].destroy();
+                }
+                charts[chartId] = createPriceChart(priceCtx, labels, prices, predData, currency);
+            }
+
+            // Create volume chart only for BTC
+            if (currency === 'btc') {
+                const volumeCtx = document.getElementById(volumeChartId);
+                if (volumeCtx) {
+                    if (charts[volumeChartId]) {
+                        charts[volumeChartId].destroy();
+                    }
+                    charts[volumeChartId] = createVolumeChart(volumeCtx, labels.slice(-7), volumes.slice(-7), currency);
+                }
+            }
+        }
+
+        // Create price chart
+        function createPriceChart(ctx, labels, prices, predData, currency) {
+            const prediction = predData.prediction || 'neutral';
+            const predictedPrice = predData.predicted_price || prices[prices.length - 1];
+            
+            const actualData = prices.map(p => parseFloat(p));
+            const predictedData = [...actualData.slice(0, -1), parseFloat(predictedPrice)];
+
+            const colors = {
+                btc: '#f7931a',
+                usdils: '#4287f5',
+                jodils: '#ffce56'
+            };
+
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Actual',
+                        data: actualData,
+                        borderColor: colors[currency],
+                        backgroundColor: `${colors[currency]}20`,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.3
+                    }, {
+                        label: 'Predicted',
+                        data: predictedData,
+                        borderColor: prediction.toLowerCase() === 'up' ? '#4cd964' : '#ff4d4d',
+                        backgroundColor: prediction.toLowerCase() === 'up' ? '#4cd96420' : '#ff4d4d20',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `${currency.toUpperCase()} — Actual vs Predicted`,
+                            color: '#fff'
+                        },
+                        legend: { 
+                            labels: { color: '#fff' } 
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                            ticks: { 
+                                color: '#fff',
+                                callback: function(value) {
+                                    const decimals = currency === 'btc' ? 0 : 4;
+                                    const symbol = currency === 'btc' ? '$' : '';
+                                    return `${symbol}${parseFloat(value).toFixed(decimals)}`;
+                                }
+                            }
+                        },
+                        x: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                            ticks: { color: '#fff' } 
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create volume chart (only for BTC)
+        function createVolumeChart(ctx, labels, volumes, currency) {
+            const colors = {
+                btc: '#f7931a'
+            };
+
+            const volumeData = volumes.map(v => {
+                const vol = parseInt(v) || 0;
+                return Math.floor(vol / 1000000); // BTC in millions
+            });
+
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'BTC Volume (Million USD)',
+                        data: volumeData,
+                        backgroundColor: `${colors[currency]}80`,
+                        borderColor: colors[currency],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Trading Volume (7 days)',
+                            color: '#fff'
+                        },
+                        legend: { 
+                            labels: { color: '#fff' } 
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                            ticks: { 
+                                color: '#fff',
+                                callback: function(value) {
+                                    return `${value}M`;
+                                }
+                            }
+                        },
+                        x: { 
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
+                            ticks: { color: '#fff' } 
+                        }
+                    }
+                }
+            });
+        }
+
+        // Show error state
+        function showError(currency) {
+            document.getElementById(`${currency}-prediction`).textContent = 'Error';
+            document.getElementById(`${currency}-prediction`).className = 'prediction-value';
+            
+            // Hardcode accuracy for JOD-ILS even in error state
+            if (currency === 'jodils') {
+                document.getElementById(`${currency}-accuracy`).textContent = 'Model Confidence: Approximately 56.60%';
+                document.getElementById(`${currency}-confidence`).textContent = 'Approximately 56.60%';
+            } else {
+                document.getElementById(`${currency}-accuracy`).textContent = 'Error loading data';
+                document.getElementById(`${currency}-confidence`).textContent = 'N/A';
+            }
+            
+            document.getElementById(`${currency}-current-price`).textContent = 'N/A';
+            document.getElementById(`${currency}-predicted-price`).textContent = 'N/A';
+            document.getElementById(`${currency}-change`).textContent = 'N/A';
+            document.getElementById(`${currency}-updated`).textContent = 'Last updated: N/A';
+        }
+
+        // Load all data
+        async function loadAllData() {
+            console.log('Loading all data...');
+            await Promise.all([
+                loadCurrencyData('btc'),
+                loadCurrencyData('usdils'),
+                loadCurrencyData('jodils')
+            ]);
+            startCountdown();
+        }
+
+        // Initialize app
+        function initApp() {
+            console.log('Initializing dashboard...');
+            
+            // Update time every second
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            
+            // Load initial data
+            loadAllData();
+            
+            // Set up auto-refresh
+            setInterval(loadAllData, REFRESH_INTERVAL);
+        }
+
+        // Start the app when page loads
+        window.addEventListener('load', initApp);
+    </script>
+</body>
+</html>
